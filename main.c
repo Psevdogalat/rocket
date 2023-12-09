@@ -8,7 +8,25 @@
 
 float angle = 0.0;
 
-Vector2f test = (Vector2f){0,1};
+ColorRGBf colors[6];
+GUIElement elements[6];
+
+void initGuiElements(){
+	unsigned int i;
+	ColorRGBf colors[6] = {
+		colorRed,
+		colorBlue,
+		colorGreen,
+		colorYelow,
+		colorGray,
+		colorLGray
+	};
+
+	for(i = 0; i < 6; i++){
+		initGUIElement(elements + i);
+		guiSetBackgroundColor(elements + i, colors[i]);
+	};
+};
 
 void displayFunc()
 {
@@ -16,19 +34,14 @@ void displayFunc()
 	Vector2f pos;
 	float angle2;
 	unsigned int i;
-	ColorRGBf colArr[6] = {
-		colorRGBf(0.9, 0.0, 0.0),
-		colorRGBf(0.0, 9.0, 0.0),
-		colorRGBf(0.0, 0.0, 9.0),
-		colorRGBf(5.0, 0.0, 5.0),
-		colorRGBf(0.0, 5.0, 5.0),
-		colorRGBf(5.0, 5.0, 0.0)
-	};
-
+	
 	angle2 = angle;
 	for (i=0; i < 6; i++, angle2 += (2*M_PI/6)){
 		pos = vmul2fs(vnorm2fa(angle2), 3.0); 
-		drawTriangle(colArr[i], pos, vortor2f(vnorm2f(pos))); 	
+		guiSetPosition(elements + i, pos);
+		elements[i].cbDraw(elements + i);
+
+		//drawTriangle(colArr[i], pos, vortor2f(vnorm2f(pos))); 	
 	}
 
 	glutSwapBuffers();
@@ -88,6 +101,8 @@ int main(unsigned int argc, char * argv[])
 	timerFunc(100);
 
 	glClearColor(0,0,0,0);
+
+	initGuiElements();
 
 	glutMainLoop();
 	return 0;
