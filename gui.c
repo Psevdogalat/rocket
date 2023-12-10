@@ -6,6 +6,9 @@
 
 GUIElement rootElement;
 
+GUIElement * guiGetRootElement(){
+	return &rootElement;
+};
 
 void guiInit(){
 	initGUIElement(&rootElement);
@@ -19,7 +22,7 @@ void drawElement(GUIElement * const el, const Matrix3f transform){
 	GUIElement * childChain;
 	Matrix3f objectTransform;
 
-	objectTransform = mmul3fm(transform, mtrp3f(el->position))	
+	objectTransform = mmul3fm(transform, mtrp3f(el->position));
 	objectTransform = mmul3fm(objectTransform, el->transform);
 	el->cbDraw(el, objectTransform);
 
@@ -34,25 +37,54 @@ void guiDraw(){
 	drawElement(&rootElement, imatrix3f);
 };
 
-void chainGUIElement(GUIElement * const el, GUIElement * const parent){
+void guiChainChild(GUIElement * const parent, GUIElement * const child){
 	GUIElement * childChain;
-	
+
+	guiUnchainChild(child);
+
 	if(parent->child == NULL){
-		parent->child = el;	
-		el->next = NULL;
-		el->last = NULL;
+		parent->child = child;	
+		child->next = NULL;
+		child->last = NULL;
 	}else{
 
 		childChain = parent->child;
 		while(childChain->next != NULL)
 			childChain = childChain->next;
 
-		childChain->next = el;
-		el->next = NULL;
-		el->last = childChain;
+		childChain->next = child;
+		child->next = NULL;
+		child->last = childChain;
 	}
 
-	el->parent = parent;
+	child->parent = parent;
+};
+
+void guiUnchainChild(GUIElement * const child){
+	GUIElement * chainChild, * last, * next, * parent;
+	parent = child->parent;
+	if(parent != NULL){
+		chainChild = parent->child;
+		while(chainChild != child)
+			chainChild = chainChild->next;	
+	
+		last = chainChild->last;
+		next = chainChild->next;
+
+		if(chainChild == parent->child){
+			parent->child = next;
+			if(next != NULL) 
+				next->last = NULL;
+		}else{
+			last->next = next;
+			if(next != NULL)
+				next->last = last;
+		};
+
+		child->parent = NULL;
+		child->next = NULL;
+		child->last = NULL;
+	}
 };
 
 void initGUIElement(GUIElement * const el){
@@ -90,6 +122,10 @@ void guiSetForegroundColor(GUIElement * const el, const ColorRGBf color){
 
 void guiSetBackgroundColor(GUIElement * const el, const ColorRGBf color){
 	el->background = color;
+};
+
+void guiSetVisible(GUIElement * const el, const bool visible){
+	el->visible = visible;
 };
 
 void guiSetDrawFunc(GUIElement * const el, GUIDrawFunc callback){
@@ -140,7 +176,7 @@ void guiDefaultDrawFunc(GUIElement * const el, const Matrix3f transform){
 	verts[3] = vector2f(el->size.x, el->size.y);
 
 	for(i=0; i < 4; i++)
-		verts[i] = vadd2f(verts[i], el->position);
+		verts[i] = mmul3fv(transform ,verts[i]);
 	
 	glColor3f(el->background.r, el->background.g, el->background.b);
 	glBegin(GL_TRIANGLE_STRIP);
@@ -189,3 +225,32 @@ const Vector2f normal)
 	glEnd();	
 };
 
+GUIElement * createGUIElement(GUIElement * const parent, 
+	const Vector2f position, const Vector2f size){
+	GUIElement * newElement;
+
+	newElement = (GUIElement*)malloc(sizeof(GUIElement));
+	if(newElement == NULL)
+		return NULL;
+
+	initGUIElement(newElement);
+	if(parent == NULL){
+		guiChainChild(&rootElement, newElement);
+	}else{
+		guiChainChild(parent, newElement);
+	};
+
+	guiSetPosition(newElement, position);
+	guiSetSize(newElement, size);
+
+	return newElement;
+};
+
+void freeGUIElement(GUIElement * const el){
+
+	guiUnchainChild(el);
+	while(el->child != NULL)
+		freeGUIElement(el->child);
+	
+	free(el);
+};

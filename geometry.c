@@ -38,3 +38,23 @@ Vector2f vnorm2f(const Vector2f vector)
 	return vmul2fs(vector, 1/module);
 };
 
+Vector2f mmul3fv(const Matrix3f mt, const Vector2f vec){
+	return vector2f(
+		mt.m[0][0] * vec.x + mt.m[0][1] * vec.y + mt.m[0][2],
+		mt.m[1][0] * vec.x + mt.m[1][1] * vec.y + mt.m[1][2]
+	);
+};
+
+Matrix3f mmul3fm(const Matrix3f m1, const Matrix3f m2){
+	Matrix3f ret;
+	unsigned int i,j;
+
+	for(i=0; i<3; i++){
+		for(j=0; j<3; j++){
+			ret.m[i][j] = m1.m[i][0]*m2.m[0][j] + m1.m[i][1]*m2.m[1][j] + 
+				m1.m[i][2]*m2.m[2][j];
+		};
+	};
+
+	return ret;
+};

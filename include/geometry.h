@@ -40,6 +40,10 @@ Vector2f vnorm2fa(const float angle);
 
 Vector2f vnorm2f(const Vector2f vector);
 
+Vector2f mmul3fv(const Matrix3f mt, const Vector2f vec);
+Matrix3f mmul3fm(const Matrix3f m1, const Matrix3f m2);
+#define mtrp3f(v) ({Matrix3f ret = {1,0,v.x, 0,1,v.y, 0,0,1}; ret;})
+
 #ifdef __cplusplus
 }
 #endif

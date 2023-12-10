@@ -3,6 +3,7 @@
 
 #define _USE_VECTOR2F_MACRO
 #include <geometry.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +37,7 @@ typedef struct __GUIElement{
 	GUIElement * last;
 	ColorRGBf 	background;
 	ColorRGBf 	foreground;
+	bool 		visible;
 	Matrix3f	transform;
 	Vector2f 	position;
 	Vector2f 	size;
@@ -47,10 +49,13 @@ typedef struct __GUIElement{
 
 void initGUIElement(GUIElement * const el);
 
+GUIElement * guiGetRootElement();
 void guiSetPosition(GUIElement * const el, const Vector2f pos);
 void guiSetSize(GUIElement * const el, const Vector2f size);
 void guiSetForegroundColor(GUIElement * const el, const ColorRGBf color);
 void guiSetBackgroundColor(GUIElement * const el, const ColorRGBf color);
+void guiSetVisible(GUIElement * const el, const bool visible);
+
 void guiSetDrawFunc(GUIElement * const el, GUIDrawFunc callback);
 void guiSetResizeFunc(GUIElement * const el, GUIResizeFunc callback);
 void guiSetKeyFunc(GUIElement * const el, GUIKeyFunc callback);
@@ -68,13 +73,19 @@ void guiInit();
 void guiFree();
 void guiDraw();
 
-void chainGUIElement(GUIElement * const element, GUIElement * const parent);
+void guiChainChild(GUIElement * const parent, GUIElement * const child);
+void guiUnchainChild(GUIElement * const child);
+
+GUIElement * createGUIElement(GUIElement * const parent, 
+	const Vector2f position, const Vector2f size);
+
+void freeGUIElement(GUIElement * const el); 
 
 void drawTriangle(const ColorRGBf color, const Vector2f position, 
 	const Vector2f normal);
 
 #ifdef __cplusplus
-}
+
 #endif
 
 #endif
