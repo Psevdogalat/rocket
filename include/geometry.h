@@ -24,8 +24,8 @@ Vector2f vector2f(const float x, const float y);
 #ifdef _USE_VECTOR2F_MACRO
 #define vadd2f(v1, v2) vector2f(v1.x + v2.x, v1.y + v2.y)
 #define vmul2fs(v, s) vector2f(v.x * s, v.y * s)
-#define vrot2fa(v, a) {vector2f(cos(a) * v.x - sin(a) * v.y, \
-	cos(a) * v.x + sin(a) * v.y)
+#define vrot2fa(v, a) vector2f(cos(a) * v.x - sin(a) * v.y, \
+	sin(a) * v.x + cos(a) * v.y)
 #define vrot2fn(v, n) vector2f(n.x * v.x - n.y * v.y, n.y * v.x + n.x * v.y)
 #define vmod2f(v) sqrt(v.x * v.x + v.y * v.y)
 #define vnorm2fa(a) vector2f(cos(a), sin(a))

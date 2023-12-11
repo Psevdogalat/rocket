@@ -10,31 +10,102 @@ GUIElement * guiGetRootElement(){
 	return &rootElement;
 };
 
+void drawRoot(GUIElement * const el, const Matrix3f transform){
+	Vector2f verts[4];
+	unsigned int i;
+
+	verts[0] = vector2f(-(el->size.x/2.0), -(el->size.y/2.0));
+	verts[1] = vector2f(-(el->size.x/2.0),  (el->size.y/2.0));
+	verts[2] = vector2f( (el->size.x/2.0), -(el->size.y/2.0));
+	verts[3] = vector2f( (el->size.x/2.0),  (el->size.y/2.0));
+
+	for(i=0; i < 4; i++)
+		verts[i] = mmul3fv(transform ,verts[i]);
+	
+	glColor3f(el->background.r, el->background.g, el->background.b);
+	glBegin(GL_TRIANGLE_STRIP);
+		for(i = 0; i < 4; i++)
+			glVertex3f(verts[i].x, verts[i].y, 0.0f);
+	glEnd();	
+
+};
+
 void guiInit(){
 	initGUIElement(&rootElement);
+	guiSetDrawFunc(&rootElement, drawRoot);
 };
 
 void guiFree(){
 
 };
 
-void drawElement(GUIElement * const el, const Matrix3f transform){
+void drawElement(GUIElement * const el, const Matrix3f transform, 
+	unsigned int level){
+	Vector2f verts[4];
+	unsigned int i;
 	GUIElement * childChain;
 	Matrix3f objectTransform;
 
 	objectTransform = mmul3fm(transform, mtrp3f(el->position));
+	
+	verts[0] = vector2f(0.0, 0.0);
+	verts[1] = vector2f(0.0, el->size.y);
+	verts[2] = vector2f(el->size.x, 0.0);
+	verts[3] = vector2f(el->size.x, el->size.y);
+
+	for(i=0; i < 4; i++)
+		verts[i] = mmul3fv(objectTransform, verts[i]);
+
+	/*
+	glStencilFunc(GL_EQUAL, level, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+	glStencilMask(0xFF);
+	*/
+
+	/*
+	glBlendFunc(GL_ZERO, GL_ONE);
+	glColor3f(0.5, 0.0, 0.5);
+	glBegin(GL_TRIANGLE_STRIP);
+		for(i = 0; i < 4; i++)
+			glVertex3f(verts[i].x, verts[i].y, 0.0f);
+	glEnd();	
+	level++;
+	*/
+
 	objectTransform = mmul3fm(objectTransform, el->transform);
+
+	//glDisable(GL_STENCIL_TEST);
+	glStencilFunc(GL_EQUAL, 0, 0xFF);
+	glStencilMask(0x00);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	//glStencilMask(0xFF);
+	//glBlendFunc(GL_ONE, GL_ZERO);
 	el->cbDraw(el, objectTransform);
 
 	childChain = el->child;
 	while(childChain != NULL){
-		drawElement(childChain, objectTransform);
+		drawElement(childChain, objectTransform, level);
 		childChain = childChain->next;
 	};
+	
+	/*
+	glStencilFunc(GL_EQUAL, level, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
+	glStencilMask(0xFF);
+	*/
+
+	/*
+	glBlendFunc(GL_ZERO, GL_ONE);
+	glColor3f(0.5, 0.0, 0.5);
+	glBegin(GL_TRIANGLE_STRIP);
+		for(i = 0; i < 4; i++)
+			glVertex3f(verts[i].x, verts[i].y, 0.0f);
+	glEnd();	
+	*/
 };
 
 void guiDraw(){
-	drawElement(&rootElement, imatrix3f);
+	drawElement(&rootElement, imatrix3f, 0);
 };
 
 void guiChainChild(GUIElement * const parent, GUIElement * const child){
@@ -200,6 +271,7 @@ void guiDefaultKeyFunc(GUIElement * const element, const char key,
 
 };
 
+/*
 void drawTriangle(const ColorRGBf color, const Vector2f position, 
 const Vector2f normal)
 {
@@ -224,6 +296,7 @@ const Vector2f normal)
 
 	glEnd();	
 };
+*/
 
 GUIElement * createGUIElement(GUIElement * const parent, 
 	const Vector2f position, const Vector2f size){
