@@ -81,9 +81,6 @@ GUIElement * createGUIElement(GUIElement * const parent,
 
 void freeGUIElement(GUIElement * const el); 
 
-void drawTriangle(const ColorRGBf color, const Vector2f position, 
-	const Vector2f normal);
-
 #ifdef __cplusplus
 
 #endif
