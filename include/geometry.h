@@ -19,6 +19,8 @@ Vector2f vector2f(const float x, const float y);
 
 #define imatrix3f ({Matrix3f ret = {1,0,0, 0,1,0, 0,0,1}; ret;})
 #define normal2f vector2f(1.0, 0.0) 
+#define xort2f vector2f(1.0, 0.0) 
+#define yort2f vector2f(0.0, 1.0) 
 #define vortor2f(v) vector2f(v.y, -v.x)
 
 #ifdef _USE_VECTOR2F_MACRO

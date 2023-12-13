@@ -51,7 +51,9 @@ Matrix3f mmul3fm(const Matrix3f m1, const Matrix3f m2){
 
 	for(i=0; i<3; i++){
 		for(j=0; j<3; j++){
-			ret.m[i][j] = m1.m[i][0]*m2.m[0][j] + m1.m[i][1]*m2.m[1][j] + 
+			ret.m[i][j] = 
+				m1.m[i][0]*m2.m[0][j] + 
+				m1.m[i][1]*m2.m[1][j] + 
 				m1.m[i][2]*m2.m[2][j];
 		};
 	};
